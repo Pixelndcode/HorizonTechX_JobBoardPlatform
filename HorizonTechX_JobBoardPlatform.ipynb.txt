@@ -1,0 +1,206 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": []
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "code",
+      "source": [
+        "from flask import Flask\n",
+        "import sqlite3\n",
+        "\n",
+        "app = Flask(__name__)\n",
+        "\n",
+        "# Create Database\n",
+        "conn = sqlite3.connect(\"jobboard.db\")\n",
+        "c = conn.cursor()\n",
+        "\n",
+        "c.execute(\"\"\"\n",
+        "CREATE TABLE IF NOT EXISTS jobs(\n",
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,\n",
+        "job_title TEXT,\n",
+        "company TEXT\n",
+        ")\n",
+        "\"\"\")\n",
+        "\n",
+        "c.execute(\"\"\"\n",
+        "CREATE TABLE IF NOT EXISTS candidates(\n",
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,\n",
+        "candidate_name TEXT,\n",
+        "resume TEXT\n",
+        ")\n",
+        "\"\"\")\n",
+        "\n",
+        "c.execute(\"\"\"\n",
+        "CREATE TABLE IF NOT EXISTS applications(\n",
+        "id INTEGER PRIMARY KEY AUTOINCREMENT,\n",
+        "candidate_name TEXT,\n",
+        "job_title TEXT,\n",
+        "status TEXT\n",
+        ")\n",
+        "\"\"\")\n",
+        "\n",
+        "conn.commit()\n",
+        "conn.close()\n",
+        "\n",
+        "@app.route(\"/\")\n",
+        "def home():\n",
+        "    return \"Job Board Platform\"\n",
+        "\n",
+        "@app.route(\"/add_job\")\n",
+        "def add_job():\n",
+        "    conn = sqlite3.connect(\"jobboard.db\")\n",
+        "    c = conn.cursor()\n",
+        "\n",
+        "    c.execute(\n",
+        "        \"INSERT INTO jobs(job_title,company) VALUES(?,?)\",\n",
+        "        (\"Python Developer\",\"Tech Company\")\n",
+        "    )\n",
+        "\n",
+        "    conn.commit()\n",
+        "    conn.close()\n",
+        "\n",
+        "    return \"Job Added\"\n",
+        "\n",
+        "@app.route(\"/add_candidate\")\n",
+        "def add_candidate():\n",
+        "    conn = sqlite3.connect(\"jobboard.db\")\n",
+        "    c = conn.cursor()\n",
+        "\n",
+        "    c.execute(\n",
+        "        \"INSERT INTO candidates(candidate_name,resume) VALUES(?,?)\",\n",
+        "        (\"Deepali\",\"Python and Flask Developer\")\n",
+        "    )\n",
+        "\n",
+        "    conn.commit()\n",
+        "    conn.close()\n",
+        "\n",
+        "    return \"Candidate Added\"\n",
+        "\n",
+        "@app.route(\"/apply_job\")\n",
+        "def apply_job():\n",
+        "    conn = sqlite3.connect(\"jobboard.db\")\n",
+        "    c = conn.cursor()\n",
+        "\n",
+        "    c.execute(\n",
+        "        \"INSERT INTO applications(candidate_name,job_title,status) VALUES(?,?,?)\",\n",
+        "        (\"Deepali\",\"Python Developer\",\"Applied\")\n",
+        "    )\n",
+        "\n",
+        "    conn.commit()\n",
+        "    conn.close()\n",
+        "\n",
+        "    return \"Application Submitted\"\n",
+        "\n",
+        "@app.route(\"/jobs\")\n",
+        "def jobs():\n",
+        "    conn = sqlite3.connect(\"jobboard.db\")\n",
+        "    c = conn.cursor()\n",
+        "\n",
+        "    c.execute(\"SELECT * FROM jobs\")\n",
+        "    data = c.fetchall()\n",
+        "\n",
+        "    conn.close()\n",
+        "    return str(data)\n",
+        "\n",
+        "if __name__ == \"__main__\":\n",
+        "    app.run(debug=True)"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "UEZf-QRz78Yy",
+        "outputId": "38066b5d-77cc-47b6-f5c8-bceceb626aa4"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            " * Serving Flask app '__main__'\n",
+            " * Debug mode: on\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "INFO:werkzeug:\u001b[31m\u001b[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.\u001b[0m\n",
+            " * Running on http://127.0.0.1:5000\n",
+            "INFO:werkzeug:\u001b[33mPress CTRL+C to quit\u001b[0m\n",
+            "INFO:werkzeug: * Restarting with watchdog (inotify)\n"
+          ]
+        }
+      ]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "import sqlite3\n",
+        "\n",
+        "conn = sqlite3.connect(\"jobboard.db\")\n",
+        "c = conn.cursor()\n",
+        "\n",
+        "c.execute(\n",
+        "    \"INSERT INTO jobs(job_title,company) VALUES(?,?)\",\n",
+        "        (\"Python Developer\",\"Tech Company\")\n",
+        "        )\n",
+        "\n",
+        "c.execute(\n",
+        "            \"INSERT INTO candidates(candidate_name,resume) VALUES(?,?)\",\n",
+        "                (\"Deepali\",\"Python and Flask Developer\")\n",
+        "                )\n",
+        "\n",
+        "c.execute(\n",
+        "                    \"INSERT INTO applications(candidate_name,job_title,status) VALUES(?,?,?)\",\n",
+        "                        (\"Deepali\",\"Python Developer\",\"Applied\")\n",
+        "                        )\n",
+        "\n",
+        "conn.commit()\n",
+        "\n",
+        "c.execute(\"SELECT * FROM jobs\")\n",
+        "print(\"Jobs:\", c.fetchall())\n",
+        "\n",
+        "c.execute(\"SELECT * FROM candidates\")\n",
+        "print(\"Candidates:\", c.fetchall())\n",
+        "\n",
+        "c.execute(\"SELECT * FROM applications\")\n",
+        "print(\"Applications:\", c.fetchall())\n",
+        "\n",
+        "conn.close()"
+      ],
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "1Wynjlsc8M15",
+        "outputId": "9b665bf5-fdba-447f-deee-da28144326e5"
+      },
+      "execution_count": null,
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Jobs: [(1, 'Python Developer', 'Tech Company')]\n",
+            "Candidates: [(1, 'Deepali', 'Python and Flask Developer')]\n",
+            "Applications: [(1, 'Deepali', 'Python Developer', 'Applied')]\n"
+          ]
+        }
+      ]
+    }
+  ]
+}
